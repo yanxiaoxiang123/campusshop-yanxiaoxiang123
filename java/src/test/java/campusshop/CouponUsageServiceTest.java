@@ -58,4 +58,26 @@ class CouponUsageServiceTest {
 
         assertTrue(svc.tryUse("bob"));
     }
+
+    @Test
+    void refund_afterCancel_allowsAnotherUse() {
+        CouponUsageService svc = new CouponUsageService(t0);
+        svc.tryUse("alice");
+        svc.tryUse("alice");
+
+        svc.refund("alice");          // 订单取消，返还一次
+
+        assertTrue(svc.tryUse("alice"));
+    }
+
+    @Test
+    void refund_nothingUsed_doesNotAllowExtraUse() {
+        CouponUsageService svc = new CouponUsageService(t0);
+
+        svc.refund("alice");          // 没用过，返还不产生额外次数
+
+        assertTrue(svc.tryUse("alice"));
+        assertTrue(svc.tryUse("alice"));
+        assertFalse(svc.tryUse("alice"));
+    }
 }

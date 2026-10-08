@@ -54,4 +54,28 @@ public class CouponUsageServiceTests
 
         Assert.True(svc.TryUse("bob"));
     }
+
+    [Fact]
+    public void Refund_AfterCancel_AllowsAnotherUse()
+    {
+        var svc = new CouponUsageService(FixedTime());
+        svc.TryUse("alice");
+        svc.TryUse("alice");
+
+        svc.Refund("alice");          // 订单取消，返还一次
+
+        Assert.True(svc.TryUse("alice"));
+    }
+
+    [Fact]
+    public void Refund_NothingUsed_DoesNotAllowExtraUse()
+    {
+        var svc = new CouponUsageService(FixedTime());
+
+        svc.Refund("alice");          // 没用过，返还不产生额外次数
+
+        Assert.True(svc.TryUse("alice"));
+        Assert.True(svc.TryUse("alice"));
+        Assert.False(svc.TryUse("alice"));
+    }
 }
