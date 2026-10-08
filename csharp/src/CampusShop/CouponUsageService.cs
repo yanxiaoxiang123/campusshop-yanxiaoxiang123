@@ -17,6 +17,14 @@ public class CouponUsageService(TimeProvider time)
         return true;
     }
 
+    /// <summary>订单取消：返还当天的一次使用次数（没有使用过时什么也不做）。</summary>
+    public void Refund(string userId)
+    {
+        var key = (userId, Today());
+        if (_used.TryGetValue(key, out var count) && count > 0)
+            _used[key] = count - 1;
+    }
+
     /// <summary>北京时间的今天（需求 3.4）。</summary>
     private DateOnly Today() =>
         DateOnly.FromDateTime(time.GetUtcNow().ToOffset(TimeSpan.FromHours(8)).DateTime);

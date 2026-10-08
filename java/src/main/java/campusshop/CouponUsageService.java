@@ -27,6 +27,14 @@ public class CouponUsageService {
         return true;
     }
 
+    /** 订单取消：返还当天的一次使用次数（没有使用过时什么也不做）。 */
+    public void refund(String userId) {
+        String key = key(userId);
+        int count = used.getOrDefault(key, 0);
+        if (count > 0)
+            used.put(key, count - 1);
+    }
+
     private String key(String userId) {
         return userId + "|" + today();
     }
