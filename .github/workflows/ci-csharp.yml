@@ -1,0 +1,44 @@
+name: CI (C#)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  unit-and-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '10.0.x' }
+      - name: 单元测试与 API 测试
+        run: dotnet test csharp --logger trx --collect:"XPlat Code Coverage"
+      - name: 上传测试结果
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: test-results, path: csharp/**/TestResults/ }
+
+  e2e:
+    needs: unit-and-api           # 单元测试通过后才运行
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '10.0.x' }
+      - name: 后台启动网站
+        run: dotnet run --project csharp/src/CampusShop.Web --urls http://localhost:5000 &
+      - name: 等待网站就绪
+        run: for i in $(seq 1 30); do curl -sf localhost:5000 && break; sleep 2; done
+      - name: 构建并安装浏览器
+        run: |
+          dotnet build csharp/tests/CampusShop.E2E
+          pwsh csharp/tests/CampusShop.E2E/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+      - name: E2E 测试
+        run: dotnet test csharp/tests/CampusShop.E2E --no-build
+      - name: 失败时上传 Trace
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: csharp/tests/CampusShop.E2E/**/traces/

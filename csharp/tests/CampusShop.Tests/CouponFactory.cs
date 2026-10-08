@@ -1,11 +1,17 @@
+using Microsoft.Extensions.Time.Testing;
+
 namespace CampusShop.Tests;
 
 /// <summary>
-/// 测试用的优惠券：满 100 减 20，日期相对于“今天”计算。
+/// 测试用的优惠券：满 100 减 20。“今天”固定为 2026-10-08（北京时间），不受运行测试的机器影响。
 /// </summary>
 public static class CouponFactory
 {
-    private static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
+    public static readonly DateOnly Today = new(2026, 10, 8);
+
+    /// <summary>固定时间：2026-10-08 10:00（北京时间）。</summary>
+    public static FakeTimeProvider FixedTime() =>
+        new(new DateTimeOffset(2026, 10, 8, 10, 0, 0, TimeSpan.FromHours(8)));
 
     public static Coupon ExpiresInDays(int days, decimal threshold = 100m, bool used = false) => new()
     {

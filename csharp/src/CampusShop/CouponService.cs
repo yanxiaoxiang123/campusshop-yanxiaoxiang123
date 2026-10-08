@@ -5,12 +5,21 @@ namespace CampusShop;
 /// </summary>
 public class CouponService
 {
+    private static readonly TimeSpan BeijingOffset = TimeSpan.FromHours(8);
+
+    private readonly TimeProvider _time;
+
+    /// <summary>
+    /// time 提供“现在”：生产环境传入 TimeProvider.System，测试中传入固定时间。
+    /// </summary>
+    public CouponService(TimeProvider time) => _time = time;
+
     /// <summary>
     /// 判断优惠券能否用于金额为 amount 的订单。
     /// </summary>
     public bool IsUsable(Coupon c, decimal amount)
     {
-        var today = DateOnly.FromDateTime(DateTime.Now);
+        var today = Today();
         if (today > c.ExpireDate)
             return false;
         if (amount < c.Threshold)
@@ -27,4 +36,8 @@ public class CouponService
             return amount;
         return amount - c.Amount;
     }
+
+    /// <summary>北京时间的今天（需求 3.4），与服务器所在时区无关。</summary>
+    private DateOnly Today() =>
+        DateOnly.FromDateTime(_time.GetUtcNow().ToOffset(BeijingOffset).DateTime);
 }
