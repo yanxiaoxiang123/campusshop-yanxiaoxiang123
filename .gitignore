@@ -10,3 +10,4 @@ playwright-report/
 *.user
 java/target/
 .claude/settings.local.json
+*.feature.cs
