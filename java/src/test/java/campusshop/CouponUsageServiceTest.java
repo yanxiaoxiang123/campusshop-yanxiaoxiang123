@@ -37,4 +37,25 @@ class CouponUsageServiceTest {
         assertTrue(svc.tryUse("alice"));
         assertTrue(svc.tryUse("alice"));
     }
+
+    @Test
+    void tryUse_nextDay_countResets() {
+        MutableClock clock = new MutableClock(t0);
+        CouponUsageService svc = new CouponUsageService(clock);
+        svc.tryUse("alice");
+        svc.tryUse("alice");
+
+        clock.advance(Duration.ofDays(1));    // 前进一天
+
+        assertTrue(svc.tryUse("alice"));
+    }
+
+    @Test
+    void tryUse_differentUsers_countedSeparately() {
+        CouponUsageService svc = new CouponUsageService(t0);
+        svc.tryUse("alice");
+        svc.tryUse("alice");
+
+        assertTrue(svc.tryUse("bob"));
+    }
 }

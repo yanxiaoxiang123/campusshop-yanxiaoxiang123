@@ -31,4 +31,27 @@ public class CouponUsageServiceTests
         Assert.True(svc.TryUse("alice"));
         Assert.True(svc.TryUse("alice"));
     }
+
+    [Fact]
+    public void TryUse_NextDay_CountResets()
+    {
+        var time = FixedTime();
+        var svc = new CouponUsageService(time);
+        svc.TryUse("alice");
+        svc.TryUse("alice");
+
+        time.Advance(TimeSpan.FromDays(1));    // 前进一天
+
+        Assert.True(svc.TryUse("alice"));
+    }
+
+    [Fact]
+    public void TryUse_DifferentUsers_CountedSeparately()
+    {
+        var svc = new CouponUsageService(FixedTime());
+        svc.TryUse("alice");
+        svc.TryUse("alice");
+
+        Assert.True(svc.TryUse("bob"));
+    }
 }
