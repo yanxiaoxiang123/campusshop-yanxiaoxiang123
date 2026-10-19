@@ -70,4 +70,32 @@ class PricingTest {
         assertEquals(0, new BigDecimal("99.00").compareTo(total),
                 () -> "没有生日资料不应享受生日折扣，实际 " + total);
     }
+
+    // ---- 需求 2.7.5：2 月 29 日生日在非闰年的处理 ----
+
+    private static final Clock FEB_28_2027_BEIJING =
+            Clock.fixed(Instant.parse("2027-02-28T02:00:00Z"), BEIJING);
+
+    private static final Clock MAR_1_2027_BEIJING =
+            Clock.fixed(Instant.parse("2027-03-01T02:00:00Z"), BEIJING);
+
+    @Test
+    void totalFor_feb29Birthday_nonLeapYearFeb28_getsDiscount() {
+        Pricing pricing = new Pricing(new PriceCalculator(), FEB_28_2027_BEIJING);
+
+        BigDecimal total = pricing.totalFor(alice(MonthDay.of(2, 29)), new BigDecimal("99"));
+
+        assertEquals(0, new BigDecimal("89.10").compareTo(total),
+                () -> "非闰年 2 月 28 日应按生日处理，实际 " + total);
+    }
+
+    @Test
+    void totalFor_feb29Birthday_nonLeapYearMar1_noDiscount() {
+        Pricing pricing = new Pricing(new PriceCalculator(), MAR_1_2027_BEIJING);
+
+        BigDecimal total = pricing.totalFor(alice(MonthDay.of(2, 29)), new BigDecimal("99"));
+
+        assertEquals(0, new BigDecimal("99.00").compareTo(total),
+                () -> "非闰年 3 月 1 日不应再享受生日折扣，实际 " + total);
+    }
 }
