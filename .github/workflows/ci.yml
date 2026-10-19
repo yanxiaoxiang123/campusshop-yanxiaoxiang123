@@ -1,0 +1,91 @@
+name: CI (Java)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-and-api:
+    name: unit-and-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: 赋予 mvnw 执行权限
+        run: chmod +x java/mvnw
+      - name: 单元测试与 API 测试
+        working-directory: java
+        run: ./mvnw -B test
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: java/target/surefire-reports/
+          if-no-files-found: warn
+
+  e2e:
+    name: e2e
+    needs: unit-and-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: 赋予 mvnw 执行权限
+        run: chmod +x java/mvnw
+      - name: 打包并后台启动网站
+        working-directory: java
+        run: |
+          ./mvnw -B -q package -DskipTests
+          nohup java -jar target/campusshop-1.0.0.jar > app.log 2>&1 &
+          echo $! > app.pid
+      - name: 等待网站就绪
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/ > /dev/null; then
+              echo "website ready after ${i} tries"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "website failed to start"
+          cat java/app.log || true
+          exit 1
+      - name: 安装浏览器
+        working-directory: java
+        run: ./mvnw -B -q exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
+      - name: E2E 测试
+        working-directory: java
+        run: ./mvnw -B test -Pe2e -Djacoco.skip=true
+      - name: 失败时上传 Trace
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: java/traces/
+          if-no-files-found: warn
+      - name: 失败时上传应用日志
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-log
+          path: java/app.log
+          if-no-files-found: warn

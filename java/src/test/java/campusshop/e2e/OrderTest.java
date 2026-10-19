@@ -3,6 +3,7 @@ package campusshop.e2e;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
@@ -10,6 +11,13 @@ import java.util.regex.Pattern;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 class OrderTest extends E2ETest {
+
+    @BeforeEach
+    void resetCarts() throws Exception {
+        // 购物车保存在服务端：每个测试独立准备数据，避免上次运行残留影响总价。
+        TestData.clearCart("alice");
+        TestData.clearCart("bob");
+    }
 
     @Test
     void order_twoNotebooks_showsOrderNumber(Page page) {
