@@ -133,4 +133,58 @@ class PriceCalculatorTest {
 
         assertEquals(0, expected.compareTo(result), () -> "expected " + expected + " but was " + result);
     }
+
+    // ---- 第 13 周：会员生日当天额外九折（需求 2.7） ----
+
+    @Test
+    void calculateTotal_birthdayNormal99_returns89_10() {
+        PriceCalculator calc = new PriceCalculator();
+
+        BigDecimal result = calc.calculateTotal(new BigDecimal("99"), MemberLevel.NORMAL, true);
+
+        assertEquals(0, new BigDecimal("89.10").compareTo(result),
+                () -> "生日九折后应为 89.10，实际 " + result);
+    }
+
+    @Test
+    void calculateTotal_notBirthdayNormal99_returns99() {
+        PriceCalculator calc = new PriceCalculator();
+
+        BigDecimal result = calc.calculateTotal(new BigDecimal("99"), MemberLevel.NORMAL, false);
+
+        assertEquals(0, new BigDecimal("99.00").compareTo(result));
+    }
+
+    @Test
+    void calculateTotal_birthdayGold200_returns152() {
+        PriceCalculator calc = new PriceCalculator();
+
+        BigDecimal result = calc.calculateTotal(new BigDecimal("200"), MemberLevel.GOLD, true);
+
+        // 200 × 0.9（金卡）= 180.00；180 × 0.9（生日）= 162.00；162 ≥ 100，减 10 → 152.00
+        assertEquals(0, new BigDecimal("152.00").compareTo(result),
+                () -> "金卡生日折扣叠加后再满减应为 152.00，实际 " + result);
+    }
+
+    @Test
+    void calculateTotal_birthdaySilver110_returns94_05() {
+        PriceCalculator calc = new PriceCalculator();
+
+        BigDecimal result = calc.calculateTotal(new BigDecimal("110"), MemberLevel.SILVER, true);
+
+        // 110 × 0.95 = 104.50；× 0.9 = 94.05；94.05 < 100，不再满减
+        assertEquals(0, new BigDecimal("94.05").compareTo(result),
+                () -> "银卡生日折扣后应跌破满减门槛，实际 " + result);
+    }
+
+    @Test
+    void calculateTotal_birthdayNormal200_appliesBirthdayThenFullReduction() {
+        PriceCalculator calc = new PriceCalculator();
+
+        BigDecimal result = calc.calculateTotal(new BigDecimal("200"), MemberLevel.NORMAL, true);
+
+        // 200 × 0.9 = 180.00；180 ≥ 100，减 10 → 170.00
+        assertEquals(0, new BigDecimal("170.00").compareTo(result),
+                () -> "生日折扣后再满减应为 170.00，实际 " + result);
+    }
 }
