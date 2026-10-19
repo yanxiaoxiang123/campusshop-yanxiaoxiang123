@@ -8,6 +8,8 @@ import java.math.RoundingMode;
  */
 public class PriceCalculator {
 
+    private static final BigDecimal BIRTHDAY_RATE = new BigDecimal("0.9");
+
     /**
      * 满减：满 200 元减 30 元；满 100 元减 10 元。取最高一档，不叠加。
      */
@@ -39,12 +41,16 @@ public class PriceCalculator {
 
         BigDecimal discounted = total.multiply(rate(level)).setScale(2, RoundingMode.HALF_UP);
         if (birthday)
-            discounted = discounted.multiply(new BigDecimal("0.9")).setScale(2, RoundingMode.HALF_UP);
+            discounted = applyBirthdayDiscount(discounted);
         if (discounted.compareTo(new BigDecimal("200")) >= 0)
             return discounted.subtract(new BigDecimal("30"));
         if (discounted.compareTo(new BigDecimal("100")) >= 0)
             return discounted.subtract(BigDecimal.TEN);
         return discounted;
+    }
+
+    private static BigDecimal applyBirthdayDiscount(BigDecimal amount) {
+        return amount.multiply(BIRTHDAY_RATE).setScale(2, RoundingMode.HALF_UP);
     }
 
     private static BigDecimal rate(MemberLevel level) {

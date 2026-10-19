@@ -27,7 +27,11 @@ public class Pricing {
 
     public BigDecimal totalFor(User user, BigDecimal subtotal) {
         LocalDate today = LocalDate.ofInstant(clock.instant(), BEIJING);
-        boolean birthday = user.birthday() != null && user.birthday().equals(MonthDay.from(today));
+        boolean birthday = isBirthday(user.birthday(), today);
         return calc.calculateTotal(subtotal, user.level(), birthday);
+    }
+
+    private static boolean isBirthday(MonthDay birthday, LocalDate today) {
+        return birthday != null && birthday.equals(MonthDay.from(today));
     }
 }
