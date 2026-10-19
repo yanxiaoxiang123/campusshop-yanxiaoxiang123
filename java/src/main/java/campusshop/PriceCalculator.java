@@ -25,10 +25,21 @@ public class PriceCalculator {
      * @throws IllegalArgumentException total 小于 0 或大于 100000
      */
     public BigDecimal calculateTotal(BigDecimal total, MemberLevel level) {
+        return calculateTotal(total, level, false);
+    }
+
+    /**
+     * 计算应付金额。生日当天在会员折扣之后、满减之前额外九折（需求 2.7）。
+     *
+     * @throws IllegalArgumentException total 小于 0 或大于 100000
+     */
+    public BigDecimal calculateTotal(BigDecimal total, MemberLevel level, boolean birthday) {
         if (total.signum() < 0 || total.compareTo(new BigDecimal("100000")) > 0)
             throw new IllegalArgumentException("total 超出范围：" + total);
 
         BigDecimal discounted = total.multiply(rate(level)).setScale(2, RoundingMode.HALF_UP);
+        if (birthday)
+            discounted = discounted.multiply(new BigDecimal("0.9")).setScale(2, RoundingMode.HALF_UP);
         if (discounted.compareTo(new BigDecimal("200")) >= 0)
             return discounted.subtract(new BigDecimal("30"));
         if (discounted.compareTo(new BigDecimal("100")) >= 0)
