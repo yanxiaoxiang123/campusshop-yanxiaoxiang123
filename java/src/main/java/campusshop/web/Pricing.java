@@ -32,6 +32,14 @@ public class Pricing {
     }
 
     private static boolean isBirthday(MonthDay birthday, LocalDate today) {
-        return birthday != null && birthday.equals(MonthDay.from(today));
+        if (birthday == null)
+            return false;
+        MonthDay todayMonthDay = MonthDay.from(today);
+        if (birthday.equals(todayMonthDay))
+            return true;
+        // 需求 2.7.5：2 月 29 日生日在非闰年按 2 月 28 日处理
+        return birthday.equals(MonthDay.of(2, 29))
+                && !today.isLeapYear()
+                && todayMonthDay.equals(MonthDay.of(2, 28));
     }
 }
