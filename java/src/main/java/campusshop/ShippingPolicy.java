@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 public class ShippingPolicy {
 
     public BigDecimal feeFor(int totalQuantity) {
-        throw new UnsupportedOperationException("运费规则尚未实现");
+        if (totalQuantity >= 3)
+            return new BigDecimal("0.00");
+        throw new UnsupportedOperationException("不足 3 件尚未实现");
     }
 }
