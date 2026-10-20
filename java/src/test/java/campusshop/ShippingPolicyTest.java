@@ -19,4 +19,14 @@ class ShippingPolicyTest {
     void feeFor_fourItems_isZero() {
         assertEquals(0, new BigDecimal("0.00").compareTo(policy.feeFor(4)));
     }
+
+    @Test
+    void feeFor_oneItem_isTen() {
+        assertEquals(0, new BigDecimal("10.00").compareTo(policy.feeFor(1)));
+    }
+
+    @Test
+    void feeFor_twoItems_isTen() {
+        assertEquals(0, new BigDecimal("10.00").compareTo(policy.feeFor(2)));
+    }
 }
