@@ -19,11 +19,6 @@ public class Pricing {
         this.shipping = shipping;
     }
 
-    /** 旧调用：只算商品金额，不含运费。新代码请使用三参数版本。 */
-    public BigDecimal totalFor(User user, BigDecimal subtotal) {
-        return calc.calculateTotal(subtotal, user.level());
-    }
-
     /** 商品金额按会员折扣、满减计算后，加上按总件数计算的运费。 */
     public BigDecimal totalFor(User user, BigDecimal subtotal, int totalQuantity) {
         return calc.calculateTotal(subtotal, user.level()).add(shipping.feeFor(totalQuantity));

@@ -44,8 +44,9 @@ public class CheckoutService {
                 return new Result(null, item.name() + " 库存不足");
         }
 
-        BigDecimal shipping = pricing.shippingFor(cart.getTotalQuantity());
-        BigDecimal total = pricing.totalFor(user, cart.getSubtotal(), cart.getTotalQuantity());
+        int itemCount = cart.getTotalQuantity();
+        BigDecimal shipping = pricing.shippingFor(itemCount);
+        BigDecimal total = pricing.totalFor(user, cart.getSubtotal(), itemCount);
         cart.getItems().forEach(i -> store.deduct(i.productId(), i.quantity()));
         if (!pay.charge(user.username(), total)) {
             cart.getItems().forEach(i -> store.restore(i.productId(), i.quantity()));
