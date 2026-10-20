@@ -42,4 +42,22 @@ class CartTest {
 
         assertTrue(cart.isEmpty());
     }
+
+    @Test
+    void getTotalQuantity_twoProducts_sumsQuantities() {
+        Cart cart = new Cart();
+        cart.add(NOTEBOOK, 2);
+        cart.add(PEN, 4);
+
+        assertEquals(6, cart.getTotalQuantity());
+    }
+
+    @Test
+    void getTotalQuantity_sameProductMerged_countsMergedQuantity() {
+        Cart cart = new Cart();
+        cart.add(NOTEBOOK, 1);
+        cart.add(NOTEBOOK, 2);
+
+        assertEquals(3, cart.getTotalQuantity());
+    }
 }

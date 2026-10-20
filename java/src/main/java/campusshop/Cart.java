@@ -41,6 +41,11 @@ public class Cart {
         items.clear();
     }
 
+    /** 所有商品数量之和。 */
+    public int getTotalQuantity() {
+        throw new UnsupportedOperationException("总件数尚未实现");
+    }
+
     /** 商品原价合计（未打折、未满减）。 */
     public BigDecimal getSubtotal() {
         return items.stream().map(CartItem::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
