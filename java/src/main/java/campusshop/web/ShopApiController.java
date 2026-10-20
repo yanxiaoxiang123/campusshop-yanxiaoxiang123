@@ -80,8 +80,10 @@ public class ShopApiController {
         User user = currentUser(authorization);
         if (user == null) return unauthorized();
         var cart = store.getCart(user.username());
-        return ResponseEntity.ok(new CartDto(List.copyOf(cart.getItems()), cart.getSubtotal(),
-                pricing.totalFor(user, cart.getSubtotal())));
+        int itemCount = cart.getTotalQuantity();
+        BigDecimal subtotal = cart.getSubtotal();
+        return ResponseEntity.ok(new CartDto(List.copyOf(cart.getItems()), subtotal,
+                pricing.shippingFor(itemCount), pricing.totalFor(user, subtotal, itemCount)));
     }
 
     @Operation(summary = "加入购物车")
@@ -122,7 +124,9 @@ public class ShopApiController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("商品不存在"));
 
         BigDecimal subtotal = product.price().multiply(BigDecimal.valueOf(req.quantity()));
-        BigDecimal total = pricing.totalFor(user, subtotal);
+        int itemCount = req.quantity();
+        BigDecimal shipping = pricing.shippingFor(itemCount);
+        BigDecimal total = pricing.totalFor(user, subtotal, itemCount);
         OrderResult result = orders.placeOrder(new Order(user.username(), product.id(), req.quantity(), total));
         if (result.getStatus() == OrderStatus.INSUFFICIENT_STOCK)
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(result.getMessage()));
@@ -131,7 +135,7 @@ public class ShopApiController {
 
         OrderRecord record = new OrderRecord(Integer.parseInt(result.getOrderId()), user.username(),
                 List.of(new CartItem(product.id(), product.name(), product.price(), req.quantity())),
-                total, user.address(), user.phone(), LocalDateTime.now());
+                total, shipping, user.address(), user.phone(), LocalDateTime.now());
         store.addOrder(record);
         return ResponseEntity.created(URI.create("/api/orders/" + record.id())).body(OrderDto.of(record));
     }

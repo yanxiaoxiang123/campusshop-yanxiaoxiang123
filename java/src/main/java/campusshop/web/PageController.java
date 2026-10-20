@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
+
 /**
  * 网页：登录、商品列表、购物车、我的订单。登录状态保存在 Session 中。
  */
@@ -83,8 +85,13 @@ public class PageController {
     public String cart(HttpSession session, Model model) {
         User user = currentUser(session);
         Cart cart = store.getCart(user.username());
+        int itemCount = cart.getTotalQuantity();
+        BigDecimal shipping = pricing.shippingFor(itemCount);
         model.addAttribute("cart", cart);
-        model.addAttribute("total", pricing.totalFor(user, cart.getSubtotal()));
+        model.addAttribute("itemCount", itemCount);
+        model.addAttribute("shipping", shipping);
+        model.addAttribute("freeShipping", shipping.signum() == 0);
+        model.addAttribute("total", pricing.totalFor(user, cart.getSubtotal(), itemCount));
         return "cart";
     }
 

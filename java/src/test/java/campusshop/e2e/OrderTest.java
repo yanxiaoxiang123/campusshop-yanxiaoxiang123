@@ -29,9 +29,32 @@ class OrderTest extends E2ETest {
             new Locator.GetByRoleOptions().setName("加入购物车")).click();
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName("购物车")).click();
-        // alice 是普通会员：50 × 2 = 100，满 100 减 10
+        // alice 是普通会员：50 × 2 = 100，满 100 减 10 = 90；2 件运费 10 → 100.00
+        assertThat(page.getByTestId("cart-shipping"))
+            .hasText("¥10.00");
         assertThat(page.getByTestId("cart-total"))
-            .hasText("¥90.00");
+            .hasText("¥100.00");
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("提交订单")).click();
+        assertThat(page.getByTestId("order-no"))
+            .hasText(Pattern.compile("^CS\\d+$"));
+    }
+
+    @Test
+    void order_threeNotebooks_freeShipping(Page page) {
+        loginAs(page, "alice");
+        Locator row = page.getByRole(AriaRole.ROW,
+            new Page.GetByRoleOptions().setName("笔记本"));
+        row.getByLabel("数量").fill("3");
+        row.getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName("加入购物车")).click();
+        page.getByRole(AriaRole.LINK,
+            new Page.GetByRoleOptions().setName("购物车")).click();
+        // 50 × 3 = 150，满 100 减 10 = 140；3 件免运费 → 140.00
+        assertThat(page.getByTestId("cart-shipping"))
+            .hasText("免运费");
+        assertThat(page.getByTestId("cart-total"))
+            .hasText("¥140.00");
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("提交订单")).click();
         assertThat(page.getByTestId("order-no"))

@@ -27,17 +27,18 @@ public final class ApiDtos {
     public record CartItemRequest(String productId, int quantity) {
     }
 
-    public record CartDto(List<CartItem> items, BigDecimal subtotal, BigDecimal total) {
+    public record CartDto(List<CartItem> items, BigDecimal subtotal, BigDecimal shipping, BigDecimal total) {
     }
 
     public record CreateOrderRequest(String productId, int quantity) {
     }
 
-    public record OrderDto(int id, String user, List<CartItem> items, BigDecimal total,
+    public record OrderDto(int id, String user, List<CartItem> items, BigDecimal total, BigDecimal shipping,
                            String address, String phone, LocalDateTime createdAt) {
 
         static OrderDto of(OrderRecord o) {
-            return new OrderDto(o.id(), o.user(), o.items(), o.total(), o.address(), o.phone(), o.createdAt());
+            return new OrderDto(o.id(), o.user(), o.items(), o.total(), o.shipping(),
+                    o.address(), o.phone(), o.createdAt());
         }
     }
 }

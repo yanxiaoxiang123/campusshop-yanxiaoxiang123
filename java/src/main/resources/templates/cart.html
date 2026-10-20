@@ -25,6 +25,9 @@
         </table>
         <p th:text="'原价合计：¥' + ${#numbers.formatDecimal(cart.subtotal, 1, 2)}"></p>
     </th:block>
+    <p>商品件数：<span data-testid="cart-count" th:text="${itemCount}">0</span> 件</p>
+    <p>运费：<span data-testid="cart-shipping"
+            th:text="${freeShipping ? '免运费' : '¥' + #numbers.formatDecimal(shipping, 1, 2)}">免运费</span></p>
     <p>应付金额：<span data-testid="cart-total" th:text="'¥' + ${#numbers.formatDecimal(total, 1, 2)}">¥0.00</span></p>
     <form method="post" action="/cart">
         <button type="submit" th:disabled="${cart.empty}">提交订单</button>
