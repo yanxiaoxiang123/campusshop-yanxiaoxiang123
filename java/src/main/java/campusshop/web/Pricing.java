@@ -26,11 +26,11 @@ public class Pricing {
 
     /** 商品金额按会员折扣、满减计算后，加上按总件数计算的运费。 */
     public BigDecimal totalFor(User user, BigDecimal subtotal, int totalQuantity) {
-        throw new UnsupportedOperationException("含运费计价尚未实现");
+        return calc.calculateTotal(subtotal, user.level()).add(shipping.feeFor(totalQuantity));
     }
 
     /** 按总件数返回运费。 */
     public BigDecimal shippingFor(int totalQuantity) {
-        throw new UnsupportedOperationException("含运费计价尚未实现");
+        return shipping.feeFor(totalQuantity);
     }
 }

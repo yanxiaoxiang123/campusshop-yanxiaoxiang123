@@ -43,7 +43,7 @@ public class Cart {
 
     /** 所有商品数量之和。 */
     public int getTotalQuantity() {
-        throw new UnsupportedOperationException("总件数尚未实现");
+        return items.stream().mapToInt(CartItem::quantity).sum();
     }
 
     /** 商品原价合计（未打折、未满减）。 */
