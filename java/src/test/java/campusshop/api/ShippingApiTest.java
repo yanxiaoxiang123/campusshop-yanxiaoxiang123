@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -83,10 +84,12 @@ class ShippingApiTest {
 
     @Test
     void getCart_empty_zeroShipping() {
-        getCart().then().statusCode(200)
-                .body("subtotal", equalTo(0.00f))
-                .body("shipping", equalTo(0.00f))
-                .body("total", equalTo(0.00f));
+        Response resp = getCart();
+
+        resp.then().statusCode(200);
+        assertThat(resp.jsonPath().getFloat("subtotal")).isZero();
+        assertThat(resp.jsonPath().getFloat("shipping")).isZero();
+        assertThat(resp.jsonPath().getFloat("total")).isZero();
     }
 
     @Test

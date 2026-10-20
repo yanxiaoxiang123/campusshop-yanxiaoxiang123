@@ -44,7 +44,8 @@ public class CheckoutService {
                 return new Result(null, item.name() + " 库存不足");
         }
 
-        BigDecimal total = pricing.totalFor(user, cart.getSubtotal());
+        BigDecimal shipping = pricing.shippingFor(cart.getTotalQuantity());
+        BigDecimal total = pricing.totalFor(user, cart.getSubtotal(), cart.getTotalQuantity());
         cart.getItems().forEach(i -> store.deduct(i.productId(), i.quantity()));
         if (!pay.charge(user.username(), total)) {
             cart.getItems().forEach(i -> store.restore(i.productId(), i.quantity()));
@@ -52,7 +53,7 @@ public class CheckoutService {
         }
 
         OrderRecord order = new OrderRecord(NEXT_ORDER_ID.incrementAndGet(), user.username(),
-                new ArrayList<>(cart.getItems()), total, new BigDecimal("0.00"), user.address(), user.phone(), LocalDateTime.now());
+                new ArrayList<>(cart.getItems()), total, shipping, user.address(), user.phone(), LocalDateTime.now());
         store.addOrder(order);
         cart.clear();
         try {
