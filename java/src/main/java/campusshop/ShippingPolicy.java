@@ -10,6 +10,6 @@ public class ShippingPolicy {
     public BigDecimal feeFor(int totalQuantity) {
         if (totalQuantity >= 3)
             return new BigDecimal("0.00");
-        throw new UnsupportedOperationException("不足 3 件尚未实现");
+        return new BigDecimal("10.00");
     }
 }
