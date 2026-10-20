@@ -52,7 +52,7 @@ public class CheckoutService {
         }
 
         OrderRecord order = new OrderRecord(NEXT_ORDER_ID.incrementAndGet(), user.username(),
-                new ArrayList<>(cart.getItems()), total, user.address(), user.phone(), LocalDateTime.now());
+                new ArrayList<>(cart.getItems()), total, new BigDecimal("0.00"), user.address(), user.phone(), LocalDateTime.now());
         store.addOrder(order);
         cart.clear();
         try {

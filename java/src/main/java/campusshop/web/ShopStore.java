@@ -60,9 +60,11 @@ public class ShopStore implements InventoryRepository {
         orders.clear();
         orders.put(1001, new OrderRecord(1001, "alice",
                 List.of(new CartItem("p1", "笔记本", new BigDecimal("50.00"), 2)), new BigDecimal("90.00"),
+                new BigDecimal("0.00"),
                 "学生公寓 3 栋 402", "13800000001", LocalDateTime.of(2026, 9, 1, 10, 0)));
         orders.put(1002, new OrderRecord(1002, "bob",
                 List.of(new CartItem("p4", "双肩包", new BigDecimal("129.00"), 1)), new BigDecimal("119.00"),
+                new BigDecimal("0.00"),
                 "学生公寓 5 栋 117", "13800000002", LocalDateTime.of(2026, 9, 2, 15, 30)));
     }
 

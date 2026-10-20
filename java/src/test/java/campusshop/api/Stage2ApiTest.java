@@ -85,10 +85,10 @@ class Stage2ApiTest {
 
         // 第 1 层：状态码
         resp.then().statusCode(201);
-        // 第 2 层：响应体（p4 单价 129；普通会员满 100 减 10 → 119.00）
+        // 第 2 层：响应体（p4 单价 129；普通会员满 100 减 10 → 119.00；1 件运费 10 → 129.00）
         resp.then()
                 .body("user", equalTo("alice"))
-                .body("total", equalTo(119.00f))
+                .body("total", equalTo(129.00f))
                 .body("items[0].productId", equalTo("p4"))
                 .body("items[0].quantity", equalTo(1));
 
@@ -97,7 +97,7 @@ class Stage2ApiTest {
         // 第 3 层：副作用——订单可以查到、库存确实扣减
         getOrder(token, id).then().statusCode(200)
                 .body("id", equalTo(id))
-                .body("total", equalTo(119.00f));
+                .body("total", equalTo(129.00f));
         assertThat(stockOf("p4")).isEqualTo(before - 1);
     }
 
@@ -110,7 +110,7 @@ class Stage2ApiTest {
 
         // 第 1 层：状态码
         resp.then().statusCode(201);
-        // 第 2 层：响应体（39.90 × 3 = 119.70；金卡 9 折 = 107.73；满 100 减 10 = 97.73）
+        // 第 2 层：响应体（39.90 × 3 = 119.70；金卡 9 折 = 107.73；满 100 减 10 = 97.73；3 件免运费）
         resp.then()
                 .body("user", equalTo("carol"))
                 .body("total", equalTo(97.73f))

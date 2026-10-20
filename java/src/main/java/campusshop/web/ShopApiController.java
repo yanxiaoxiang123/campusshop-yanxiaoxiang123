@@ -131,7 +131,7 @@ public class ShopApiController {
 
         OrderRecord record = new OrderRecord(Integer.parseInt(result.getOrderId()), user.username(),
                 List.of(new CartItem(product.id(), product.name(), product.price(), req.quantity())),
-                total, user.address(), user.phone(), LocalDateTime.now());
+                total, new BigDecimal("0.00"), user.address(), user.phone(), LocalDateTime.now());
         store.addOrder(record);
         return ResponseEntity.created(URI.create("/api/orders/" + record.id())).body(OrderDto.of(record));
     }

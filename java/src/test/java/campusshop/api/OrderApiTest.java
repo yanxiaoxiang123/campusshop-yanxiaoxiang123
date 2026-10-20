@@ -61,9 +61,9 @@ class OrderApiTest {
 
         Response resp = postOrder(token, "p1", 2);
 
-        // 第 1 层：状态码；第 2 层：响应体（alice 是普通会员；50 × 2 = 100 → 满 100 减 10）
+        // 第 1 层：状态码；第 2 层：响应体（alice 是普通会员；50 × 2 = 100 → 满 100 减 10 = 90；2 件运费 10 → 100.00）
         resp.then().statusCode(201)
-                .body("total", equalTo(90.00f))
+                .body("total", equalTo(100.00f))
                 .body("user", equalTo("alice"));
         // 第 3 层：副作用——能查到这个订单
         int id = resp.path("id");
